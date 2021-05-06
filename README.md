@@ -3,6 +3,11 @@ I'm using QT Design v 5.15 on Visual Studio 2019 <br />
 This is my first project <br />
 Still ongoing <br />
 
+## TODO 
+Castling move <br />
+Pawn <br />
+Checkmate <br />
+Stalemate <br />
 
 Check out my project :  <br />
 (fresayu.com)

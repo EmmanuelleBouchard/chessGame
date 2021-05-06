@@ -8,6 +8,7 @@ Still ongoing <br />
 * Pawn <br />
 * Checkmate <br />
 * Stalemate <br />
+* Revive piece with pawn
 
 Check out my project :  <br />
 (fresayu.com)

@@ -4,10 +4,10 @@ This is my first project <br />
 Still ongoing <br />
 
 ## TODO 
-Castling move <br />
-Pawn <br />
-Checkmate <br />
-Stalemate <br />
+* Castling move <br />
+* Pawn <br />
+* Checkmate <br />
+* Stalemate <br />
 
 Check out my project :  <br />
 (fresayu.com)

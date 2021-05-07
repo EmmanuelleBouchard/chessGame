@@ -7,6 +7,7 @@
 #include "Tour.h"
 #include "Cavalier.h"
 #include "Reine.h"
+#include "Pion.h"
 
 
 void  PlateauEchec::liste1() {
@@ -118,7 +119,11 @@ bool PlateauEchec::deplacementPiece(shared_ptr<Piece>& piece, Position position,
 
 	Position positionAncien = piece->positionActuelle;
 	auto autrePiece = tableauEchec[position.x][position.y];
+	if (auto && pion = dynamic_cast<Pion*>(piece.get()) and test == false) {
+		piece->debut = false;
+	}
 
+	//Si on attaque
 	if (tableauEchec[position.x][position.y] != nullptr and test == false) {
 
 		auto pieceAttaquee = tableauEchec[position.x][position.y];
@@ -231,14 +236,13 @@ bool PlateauEchec::miseEnEchec(int x, int y, bool estPieceAttaquanteNoir, bool e
 			}
 			return true;
 		}
+	
 	}
 	else {
 
 		if (estRoi == false) {
 			positionRoi = Roi::roi2->getPositionActuelle();
 		}
-
-
 		if (mouvementValide(pieceAttaquante, positionRoi)) {
 			if (estRoi == false and verifPropreEchec) {
 				return false;
@@ -247,6 +251,8 @@ bool PlateauEchec::miseEnEchec(int x, int y, bool estPieceAttaquanteNoir, bool e
 
 
 		}
+
+	
 
 	}
 
@@ -269,18 +275,61 @@ bool PlateauEchec::deplacementEchec(shared_ptr<Piece> pieceSelectionnee, Positio
 	if (estRoi) {
 		if (pieceSelectionnee->getCouleur() == Couleur::blanc) {
 			for (auto&& piece : listePieceNoir) {
-				if (miseEnEchec(piece.second->getPositionActuelle().x, piece.second->getPositionActuelle().y, true, estRoi, true, positionFinale)) {
+				if (miseEnEchec(piece.second->getPositionActuelle().x, piece.second->getPositionActuelle().y, true, estRoi, true, positionFinale) and !piece.second->estPion) {
 					return true;
 				}
 			}
+
+
+			if (mouvementValide(pieceSelectionnee, positionFinale)) {
+				Position positionPieceSelectionnee = pieceSelectionnee->positionActuelle;
+				shared_ptr<Piece> pieceAttaquee = tableauEchec[positionFinale.x][positionFinale.y];
+				//Déplace la pièce sélectionnée à l'endroit voulu afin de vérifié si son déplacement va causé un post échec
+				deplacementPiece(pieceSelectionnee, positionFinale, true);
+				pieceSelectionnee->positionActuelle = positionFinale;
+				for (auto&& piece : listePieceNoir) {
+					if(piece.second->estPion)
+					if (miseEnEchec(piece.second->getPositionActuelle().x, piece.second->getPositionActuelle().y, true, estRoi, true, positionFinale) ) {
+						restaurerDeplacement(pieceAttaquee, pieceSelectionnee, positionPieceSelectionnee);
+						return true;
+					}
+				}
+
+
+				restaurerDeplacement(pieceAttaquee, pieceSelectionnee, positionPieceSelectionnee);
+				
+
+			}
+			
 		}
 
 		else if (pieceSelectionnee->getCouleur() == Couleur::noir) {
 			for (auto&& piece : listePieceBlanche) {
-				if (miseEnEchec(piece.second->getPositionActuelle().x, piece.second->getPositionActuelle().y, false, estRoi, true, positionFinale)) {
+				if (miseEnEchec(piece.second->getPositionActuelle().x, piece.second->getPositionActuelle().y, false, estRoi, true, positionFinale) and !piece.second->estPion) {
 					return true;
 				}
 			}
+			if (mouvementValide(pieceSelectionnee, positionFinale)) {
+				Position positionPieceSelectionnee = pieceSelectionnee->positionActuelle;
+				shared_ptr<Piece> pieceAttaquee = tableauEchec[positionFinale.x][positionFinale.y];
+				//Déplace la pièce sélectionnée à l'endroit voulu afin de vérifié si son déplacement va causé un post échec
+				deplacementPiece(pieceSelectionnee, positionFinale, true);
+				pieceSelectionnee->positionActuelle = positionFinale;
+				for (auto&& piece : listePieceBlanche) {
+					if (piece.second->estPion)
+					if (miseEnEchec(piece.second->getPositionActuelle().x, piece.second->getPositionActuelle().y, false, estRoi, true, positionFinale)) {
+						restaurerDeplacement(pieceAttaquee, pieceSelectionnee, positionPieceSelectionnee);
+						return true;
+					}
+				}
+
+
+				restaurerDeplacement(pieceAttaquee, pieceSelectionnee, positionPieceSelectionnee);
+
+
+
+			}
+
 		}
 	}
 
@@ -454,6 +503,25 @@ void PlateauEchec::initialiserJeux() {
 	tableauEchec[7][8] =Tour::getInstanceTourDroite(Couleur::noir);
 	listePieceNoir[Tour::tour4->getNom()] = Tour::tour4;
 
+	//Pion blanc
+	string nom = "Pion blanc ";
+
+	for (int i = 1; i <= 8; i++) {
+		nom += i;
+		tableauEchec[1][i] = make_shared<Pion>((Pion({ 1,i }, Couleur::blanc, nom)));
+		listePieceBlanche[nom] = tableauEchec[1][i];
+		nom = "Pion blanc ";
+	}
+
+	//Pion noir
+
+	nom = "Pion noir ";
+	for (int i = 1; i <= 8; i++) {
+		nom += i;
+		tableauEchec[6][i] = make_shared<Pion>((Pion({ 6,i }, Couleur::noir, nom)));
+		listePieceNoir[nom] = tableauEchec[6][i];
+		nom = "Pion noir ";
+	}
 
 }
 
@@ -495,6 +563,8 @@ void PlateauEchec::resetGame() {
 	initialisationPosition({ 7,1 }, Tour::tour2);
 	initialisationPosition({ 0,1 }, Tour::tour3);
 	initialisationPosition({ 7,8 }, Tour::tour4);
+
+
 
 	listePieceBlanche.clear();
 	listePieceNoir.clear();

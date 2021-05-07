@@ -73,7 +73,9 @@ Position Piece::getPositionActuelle() {
 }
 
 bool Piece::pareilCouleur(shared_ptr<Piece> piece) {
-
+	if (piece == nullptr) {
+		return false;
+	}
 	if (this->getCouleur() == piece->getCouleur())
 		return true;
 

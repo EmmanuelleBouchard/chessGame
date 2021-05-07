@@ -22,17 +22,18 @@ FenetreDemarrage::FenetreDemarrage(QWidget* parent)
     
 }
 void FenetreDemarrage::signalClicked(){
-    this->hide();
+  //  this->hide();
+    this->close();
     emit clicked();
 }
 void FenetreDemarrage::signalListe1() {
-    this->hide();
+    this->close();
 
     emit liste1();
 
 }
 void FenetreDemarrage::signalListe2() {
-    this->hide();
+    this->close();
     emit liste2();
 
 }

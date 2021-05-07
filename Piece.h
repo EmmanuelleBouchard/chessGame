@@ -31,8 +31,6 @@
 
 
 
-
-
 	protected:
 
 		//friend class Plateau;
@@ -41,6 +39,11 @@
 		Couleur couleur_;
 		string nom_;
 		bool mouvementPossible = true;
+
+		bool debut = true;
+		bool estPion = false;
+
+
 
 	private:
 

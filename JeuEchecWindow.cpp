@@ -76,31 +76,7 @@ void JeuEchecWindow::initialisationFenetre() {
 		}
 	}
 
-	/*
-	QIcon icon;
-	icon.addFile(QString::fromUtf8(":/Ressource/image/rook1.png"), QSize(), QIcon::Normal, QIcon::Off);
-	QIcon icon1;
-	icon1.addFile(QString::fromUtf8(":/Ressource/image/rook.png"), QSize(), QIcon::Normal, QIcon::Off);
 
-	QIcon icon2;
-	icon2.addFile(QString::fromUtf8(":/Ressource/image/queen1.png"), QSize(), QIcon::Normal, QIcon::Off);
-	QIcon icon3;
-	icon3.addFile(QString::fromUtf8(":/Ressource/image/queen.png"), QSize(), QIcon::Normal, QIcon::Off);
-
-	ui->tableWidget->item(0, 0)->setIcon(icon);
-
-	ui->tableWidget->item(0, 7)->setIcon(icon);
-
-
-	ui->tableWidget->item(7, 0)->setIcon(icon1);
-
-
-	ui->tableWidget->item(7, 7)->setIcon(icon1);
-
-
-	ui->tableWidget->item(0, 3)->setIcon(icon2);
-	ui->tableWidget->item(7, 3)->setIcon(icon3);
-	*/
 
 }
 
@@ -183,7 +159,7 @@ void JeuEchecWindow::coloriageCaseValide(Position positionPieceSelectionne) {
 
 	for (int i = 0; i < range; i++) {
 		for (int j = 0; j < colonne; j++) {
-			if (i == 1 and j == 0) {
+			if (i == 5 and j == 3) {
 				cout << "a";
 			}
 			if ((i != positionPieceSelectionne.x || positionPieceSelectionne.y != j)) {
@@ -309,7 +285,10 @@ void JeuEchecWindow::remettreJeuxInitiale() {
 	ui->tableWidget->item(7, 7)->setIcon(QIcon(":/Ressource/image/rook.png"));
 
 
-
+	for (int i = 0; i < 8; i++) {
+		ui->tableWidget->item(1, i)->setIcon(QIcon(":/Ressource/image/pawn1.png"));
+		ui->tableWidget->item(6, i)->setIcon(QIcon(":/Ressource/image/pawn.png"));
+	}
 
 
 

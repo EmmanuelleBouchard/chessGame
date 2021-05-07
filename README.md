@@ -6,8 +6,7 @@ Still ongoing <br />
 ## TODO 
 * Castling move <br />
 * Pawn  (done) <br />
-* Checkmate <br />
-* Stalemate <br />
+* Checkmate / Stalemate <br />
 * Revive piece with pawn
 
 Check out my project :  <br />

@@ -64,9 +64,7 @@ bool Roi::Roi::validationMouvement(Position positionApres, vector<vector<shared_
 
 Roi::Roi::Roi(Position position, Couleur couleur, string nom) : Piece(position, couleur, nom) {
 
-	cout << "La piece " << this->nom_ << " a ete cree a l'endroit ";
-	position.positionNumerotation();
-	cout << "\n";
+	
 
 }
 

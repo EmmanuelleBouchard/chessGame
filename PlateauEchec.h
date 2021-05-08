@@ -7,14 +7,15 @@
 #include <memory>
 #include <map>
 #include "Piece.h"
+
 using namespace std;
 
 class PlateauEchec
 {
-
+	
 public:
 
-
+	friend class Test;
 	vector<vector<shared_ptr<Piece>>>  listeTeamBleu;
 	vector<vector<shared_ptr<Piece>>>  listeTeamRouge;
 
@@ -28,7 +29,9 @@ public:
 
 	bool deplacementPiece(shared_ptr<Piece>& piece, Position position, bool test);
 	bool getCase(Position position);
+
 	bool mouvementValide(const shared_ptr<Piece>& piece, Position position);
+
 	bool deplacementEchec(shared_ptr<Piece> pieceSelectionneModele, Position positionFinale);
 
 	string mouvementInterditMessage(shared_ptr<Piece> piece, Position positionApres);
@@ -43,6 +46,7 @@ public:
 private:
 
 	friend class Piece;
+	
 
 
 	vector<vector<shared_ptr<Piece>>>      tableauEchec;
@@ -67,4 +71,5 @@ private:
 
 
 };
+
 

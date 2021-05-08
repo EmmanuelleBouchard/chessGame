@@ -90,7 +90,7 @@ void JeuEchecWindow::MakeActive() {
 
 void  JeuEchecWindow::liste1() {
 	auto image = ui->tableWidget->item(0, 2)->icon();
-	ui->tableWidget->item(1, 2)->setIcon(image);
+	ui->tableWidget->item(2, 2)->setIcon(image);
 	ui->tableWidget->item(0, 2)->setIcon(QIcon());
 
 	plateau->liste1();
@@ -98,9 +98,9 @@ void  JeuEchecWindow::liste1() {
 
 }
 void JeuEchecWindow::liste2() {
-	cout << "ALLO" << endl;
+
 	auto image = ui->tableWidget->item(7, 6)->icon();
-	ui->tableWidget->item(6, 6)->setIcon(image);
+	ui->tableWidget->item(5, 6)->setIcon(image);
 	ui->tableWidget->item(7, 6)->setIcon(QIcon());
 
 	plateau->liste2();

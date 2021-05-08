@@ -63,9 +63,6 @@ std::shared_ptr<Piece> Cavalier::Cavalier::getInstanceCavalierDroite(Couleur cou
 
 Cavalier::Cavalier::Cavalier(Position position, Couleur couleur, string nom) : Piece(position, couleur, nom) {
 
-    cout << "La piece " << this->nom_ << " a ete cree a l'endroit ";
-    position.positionNumerotation();
-    cout << "\n";
 
 }
 

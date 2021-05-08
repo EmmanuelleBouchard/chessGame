@@ -12,18 +12,18 @@
 
 void  PlateauEchec::liste1() {
 
-	this->tableauEchec[0][3]->positionActuelle = { 1,3 };
+	this->tableauEchec[0][3]->positionActuelle = { 2,3 };
 
-	this->tableauEchec[1][3] = tableauEchec[0][3];
+	this->tableauEchec[2][3] = tableauEchec[0][3];
 	this->tableauEchec[0][3] = nullptr;
 
 	//	this->listePieceBlanche[tableauEchec[1][3]->getNom()] = tableauEchec[1][3];
 
 }
 void  PlateauEchec::liste2() {
-	this->tableauEchec[7][7]->positionActuelle = { 6,7 };
+	this->tableauEchec[7][7]->positionActuelle = { 5,7 };
 
-	this->tableauEchec[6][7] = tableauEchec[7][7];
+	this->tableauEchec[5][7] = tableauEchec[7][7];
 	this->tableauEchec[7][7] = nullptr;
 
 }
@@ -119,11 +119,12 @@ bool PlateauEchec::deplacementPiece(shared_ptr<Piece>& piece, Position position,
 
 	Position positionAncien = piece->positionActuelle;
 	auto autrePiece = tableauEchec[position.x][position.y];
+
 	if (auto && pion = dynamic_cast<Pion*>(piece.get()) and test == false) {
 		piece->debut = false;
 	}
 
-	//Si on attaque
+	//Si on attaque, je met la pi;ece bouffé dans ma liste black list
 	if (tableauEchec[position.x][position.y] != nullptr and test == false) {
 
 		auto pieceAttaquee = tableauEchec[position.x][position.y];

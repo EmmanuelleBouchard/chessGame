@@ -16,7 +16,7 @@ public:
   
     ~FenetreDemarrage();
 
-signals:
+signals: 
     void clicked();
     void liste1();
     void liste2();

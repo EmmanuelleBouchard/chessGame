@@ -150,7 +150,7 @@ bool JeuEchecWindow::caseNoir(Position position) {
 
 }
 
-void JeuEchecWindow::coloriageCaseValide(Position positionPieceSelectionne) {
+void JeuEchecWindow::coloriageCaseValide(Position positionPieceSelectionnee) {
 
 	int range = ui->tableWidget->rowCount();
 	int colonne = ui->tableWidget->columnCount();
@@ -159,16 +159,13 @@ void JeuEchecWindow::coloriageCaseValide(Position positionPieceSelectionne) {
 
 	for (int i = 0; i < range; i++) {
 		for (int j = 0; j < colonne; j++) {
-			if (i == 5 and j == 3) {
+			if(i == 5 and j == 7){
 				cout << "a";
 			}
-			if ((i != positionPieceSelectionne.x || positionPieceSelectionne.y != j)) {
+			if ((i != positionPieceSelectionnee.x || positionPieceSelectionnee.y != j)) {
 				
-				auto piece = plateau->getPiece(positionPieceSelectionne.x, positionPieceSelectionne.y + 1);
+				auto piece = plateau->getPiece(positionPieceSelectionnee.x, positionPieceSelectionnee.y + 1);
 
-				if (i == 0 and j == 0) {
-					cout << "a";
-				}
 				if(plateau->mouvementValide(piece, { i,j + 1 }))
 
 				if (plateau->mouvementValide(piece, { i,j + 1 }) and plateau->deplacementEchec(piece, { i,j + 1 }) == false) {
@@ -178,7 +175,7 @@ void JeuEchecWindow::coloriageCaseValide(Position positionPieceSelectionne) {
 					QLinearGradient linearGrad(QPointF(0, 0), QPointF(50, 50));
 
 					if (caseNoir({ i,j })) {
-						if (plateau->getPiece(positionPieceSelectionne.x, positionPieceSelectionne.y + 1)->getCouleur() == Couleur::noir) {
+						if (plateau->getPiece(positionPieceSelectionnee.x, positionPieceSelectionnee.y + 1)->getCouleur() == Couleur::noir) {
 							//Bleu case Noir
 							couleur = QColor(0, 50, 78);
 						}
@@ -191,7 +188,7 @@ void JeuEchecWindow::coloriageCaseValide(Position positionPieceSelectionne) {
 
 					}
 					else {
-						if (plateau->getPiece(positionPieceSelectionne.x, positionPieceSelectionne.y + 1)->getCouleur() == Couleur::noir) {
+						if (plateau->getPiece(positionPieceSelectionnee.x, positionPieceSelectionnee.y + 1)->getCouleur() == Couleur::noir) {
 							//Bleu case Blanche
 
 							couleur = QColor(101, 178, 255);
@@ -430,11 +427,14 @@ void JeuEchecWindow::deplacementPiece(int positionFinaleX, int positionFinaleY) 
 	//Deuxieme clic : Deplacement piece
 
 	else if (premierClic == false) {
-
+		
 		remettreCouleurCaseAvant();
 		listeCaseColoriee.clear();
 
 		shared_ptr<Piece> pieceSelectionnee = plateau->getPiece((positionPieceSelectionne.x), positionPieceSelectionne.y + 1);
+		if (pieceSelectionnee->getPositionActuelle().positionNumerotation() == "d8") {
+			cout << "a";
+		}
 
 		bool caseDifferente = (positionPieceSelectionne.x != positionFinaleX || positionPieceSelectionne.y != positionFinaleY);
 		bool deplacementValide = plateau->mouvementValide(pieceSelectionnee, { positionFinaleX,positionFinaleY + 1 });

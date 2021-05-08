@@ -6,7 +6,6 @@
 
 	using namespace std;
 
-	Piece;
 
 
 	class Roi : public Piece

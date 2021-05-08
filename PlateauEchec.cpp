@@ -132,7 +132,7 @@ bool PlateauEchec::deplacementPiece(shared_ptr<Piece>& piece, Position position,
 		if (estPieceBlanche) {
 			listePieceBlanche.erase(pieceAttaquee->getNom());
 			bool continuer = true;
-			auto index = indexPremiereCaseVide(listeTeamBleu, 2, 8);
+			auto index = indexPremiereCaseVide(listeTeamBleu, 8, 2);
 			if (index.first != -1 or index.second != -1) {
 
 				listeTeamBleu[index.first][index.second] = pieceAttaquee;
@@ -141,23 +141,6 @@ bool PlateauEchec::deplacementPiece(shared_ptr<Piece>& piece, Position position,
 
 			}
 
-			/*
-			for (int i = 0; i < 8; i++) {
-				for (int j = 0; j < 2; j++) {
-					if (listeTeamBleu[i][j] == nullptr) {
-						listeTeamBleu[i][j] = pieceAttaquee;
-						pieceAttaquee->positionActuelle = { i,j };
-						continuer = false;
-						
-						break;
-					}
-				}
-				if (continuer == false) {
-					break;
-				}
-			}
-
-			*/
 
 			
 		}
@@ -166,7 +149,7 @@ bool PlateauEchec::deplacementPiece(shared_ptr<Piece>& piece, Position position,
 			bool continuer = true;
 
 
-			auto index = indexPremiereCaseVide(listeTeamBleu, 2, 8);
+			auto index = indexPremiereCaseVide(listeTeamRouge, 8, 2);
 			if (index.first != -1 or index.second != -1) {
 
 				listeTeamRouge[index.first][index.second] = pieceAttaquee;
@@ -175,31 +158,8 @@ bool PlateauEchec::deplacementPiece(shared_ptr<Piece>& piece, Position position,
 
 			}
 
-			/*
-
-			for (int i = 0; i < 8; i++) {
-				for (int j = 0; j < 2; j++) {
-					if (listeTeamRouge[i][j] == nullptr) {
-						listeTeamRouge[i][j] = pieceAttaquee;
-						pieceAttaquee->positionActuelle = { i,j };
-						continuer = false;
-						break;
-					}
-				}
-				if (continuer == false) {
-					break;
-				}
-			}
-
-			*/
 		}
 
-		//Mettre la pièce attaquée ailleurs temporairement afin de déterminer 
-		//sa position exacte dans une des deux listes de pièces mangées 
-		//(liste de pièces noires /  liste de pièces blanches )
-	
-
-	//	plateau->eliminationPieceModele(pieceAttaquee);
 		
 
 	}
@@ -213,16 +173,21 @@ bool PlateauEchec::deplacementPiece(shared_ptr<Piece>& piece, Position position,
 
 }
 
-bool PlateauEchec::miseEnEchec(int x, int y, bool estPieceAttaquanteNoir, bool estRoi, bool verifPropreEchec, Position positionRoi)
+bool PlateauEchec::miseEnEchec(int x, int y, bool estPieceAttaquanteNoir, bool estRoi, Position positionRoi)
 {
 
 	auto pieceAttaquante = tableauEchec[x][y];
+	/*	
+	* 
+	* estRoi == false
+	* Si la pièce sélectionné  n'est pas un Roi, alors on vérifie s'il y a un mouvement possible entre la pieceAttaquante (pièce sélectionné ) et le Roi adverse (positionRoi)
+	* 
+	* estRoi == true
+	* Si la pièce sélectionné est un Roi, alors on vérifie s'il y a un mouvement possible avec la piece Attaquante( le Roi lui-même ) et sa futur position (positionRoi)
+	* 
+	*/
 
-	//Si la pièce sélectionné  n'est pas un Roi, alors on vérifie s'il y a un mouvement
-	//possible entre la pieceAttaquante (pièce sélectionné ) et le Roi adverse (positionRoi)
 
-	//Si la pièce sélectionné est un Roi, alors on vérifie s'il y a un mouvement possible
-	//avec la piece Attaquante( le Roi lui-même ) et sa futur position (positionRoi)
 	if (estPieceAttaquanteNoir) {
 
 		if (estRoi == false) {
@@ -231,9 +196,7 @@ bool PlateauEchec::miseEnEchec(int x, int y, bool estPieceAttaquanteNoir, bool e
 
 
 		if (mouvementValide(pieceAttaquante, positionRoi)) {
-			if (estRoi == false and verifPropreEchec) {
-				return false;
-			}
+
 			return true;
 		}
 	
@@ -244,9 +207,7 @@ bool PlateauEchec::miseEnEchec(int x, int y, bool estPieceAttaquanteNoir, bool e
 			positionRoi = Roi::roi2->getPositionActuelle();
 		}
 		if (mouvementValide(pieceAttaquante, positionRoi)) {
-			if (estRoi == false and verifPropreEchec) {
-				return false;
-			}
+
 			return true;
 
 
@@ -262,120 +223,86 @@ bool PlateauEchec::miseEnEchec(int x, int y, bool estPieceAttaquanteNoir, bool e
 
 
 
-// a faire qqch
+
 bool PlateauEchec::deplacementEchec(shared_ptr<Piece> pieceSelectionnee, Position positionFinale) {
 
-	string nomPiece = pieceSelectionnee->getNom();
-	bool estRoi = false;
+	string   nomPieceSelectionnee = pieceSelectionnee->getNom();
+	bool     estRoi = false;
+	bool     estPieceAttaquanteNoir = pieceSelectionnee->getCouleur() == Couleur::blanc;
 
-	if (nomPiece == "Roi blanc" || nomPiece == "Roi noir")
+	map<string, shared_ptr<Piece>> listePieceAttaquante;
+	
+
+
+	if (estPieceAttaquanteNoir == true) {
+		listePieceAttaquante = listePieceNoir;
+	}
+	else if (estPieceAttaquanteNoir == false) {
+		listePieceAttaquante = listePieceBlanche;
+	}
+
+	if (nomPieceSelectionnee == "Roi blanc" || nomPieceSelectionnee == "Roi noir")
 		estRoi = true;
 
-	//Si la pièce sélectionnée est le Roi, on s'assure que son déplacement ne va pas lui causer un mouvement d'échec
+	//Si la pièce sélectionnée est le Roi, on vérifie si son déplacement va lui causer un échec
 	if (estRoi) {
-		if (pieceSelectionnee->getCouleur() == Couleur::blanc) {
-			for (auto&& piece : listePieceNoir) {
-				if (miseEnEchec(piece.second->getPositionActuelle().x, piece.second->getPositionActuelle().y, true, estRoi, true, positionFinale) and !piece.second->estPion) {
-					return true;
-				}
-			}
 
-
-			if (mouvementValide(pieceSelectionnee, positionFinale)) {
-				Position positionPieceSelectionnee = pieceSelectionnee->positionActuelle;
-				shared_ptr<Piece> pieceAttaquee = tableauEchec[positionFinale.x][positionFinale.y];
-				//Déplace la pièce sélectionnée à l'endroit voulu afin de vérifié si son déplacement va causé un post échec
-				deplacementPiece(pieceSelectionnee, positionFinale, true);
-				pieceSelectionnee->positionActuelle = positionFinale;
-				for (auto&& piece : listePieceNoir) {
-					if(piece.second->estPion)
-					if (miseEnEchec(piece.second->getPositionActuelle().x, piece.second->getPositionActuelle().y, true, estRoi, true, positionFinale) ) {
-						restaurerDeplacement(pieceAttaquee, pieceSelectionnee, positionPieceSelectionnee);
-						return true;
-					}
-				}
-
-
-				restaurerDeplacement(pieceAttaquee, pieceSelectionnee, positionPieceSelectionnee);
+			//On va gérer toute mouvement des pièce attaquante par rapport au roi sauf les pions (car le mouvement attaquant du pion est spéciale)
+			for (auto&& pieceAttaquante : listePieceAttaquante) {
+				bool estEchec = miseEnEchec(pieceAttaquante.second->getPositionActuelle().x, pieceAttaquante.second->getPositionActuelle().y, estPieceAttaquanteNoir, estRoi, positionFinale);
+				bool estPion = pieceAttaquante.second->estPion;
 				
-
-			}
-			
-		}
-
-		else if (pieceSelectionnee->getCouleur() == Couleur::noir) {
-			for (auto&& piece : listePieceBlanche) {
-				if (miseEnEchec(piece.second->getPositionActuelle().x, piece.second->getPositionActuelle().y, false, estRoi, true, positionFinale) and !piece.second->estPion) {
+				if (estEchec and estPion == false) {
 					return true;
 				}
 			}
-			if (mouvementValide(pieceSelectionnee, positionFinale)) {
-				Position positionPieceSelectionnee = pieceSelectionnee->positionActuelle;
-				shared_ptr<Piece> pieceAttaquee = tableauEchec[positionFinale.x][positionFinale.y];
-				//Déplace la pièce sélectionnée à l'endroit voulu afin de vérifié si son déplacement va causé un post échec
-				deplacementPiece(pieceSelectionnee, positionFinale, true);
-				pieceSelectionnee->positionActuelle = positionFinale;
-				for (auto&& piece : listePieceBlanche) {
-					if (piece.second->estPion)
-					if (miseEnEchec(piece.second->getPositionActuelle().x, piece.second->getPositionActuelle().y, false, estRoi, true, positionFinale)) {
-						restaurerDeplacement(pieceAttaquee, pieceSelectionnee, positionPieceSelectionnee);
-						return true;
-					}
-				}
-
-
-				restaurerDeplacement(pieceAttaquee, pieceSelectionnee, positionPieceSelectionnee);
 
 
 
-			}
-
-		}
+	
 	}
 
-	//Si la pièce sélectionnée est une autre pièce, on s'assure que son déplacement ne va pas causer l'échec de son propre roi
-	else if (estRoi == false) {
-		Position positionPieceSelectionnee = pieceSelectionnee->positionActuelle;
-		shared_ptr<Piece> pieceAttaquee = tableauEchec[positionFinale.x][positionFinale.y];
+	//Si la pièce sélectionnée est une autre pièce, on vérifie si son déplacement va causer l'échec de son propre roi ou
+	//Dans le cas où la pièce sélectionnée est un roi et que la pièce attaquante est un pion, on vérifie que le déplacement du roi le mettra en échec
 
-		if (mouvementValide(pieceSelectionnee, positionFinale)) {
-
-			//Déplace la pièce sélectionnée à l'endroit voulu afin de vérifié si son déplacement va causé un post échec
-			deplacementPiece(pieceSelectionnee, positionFinale, true);
-			pieceSelectionnee->positionActuelle = positionFinale;
-
-			
-			if (pieceSelectionnee->getCouleur() == Couleur::blanc) {
-				for (auto&& pieceAttaquante : listePieceNoir) {
-
-					bool estEchec = miseEnEchec(pieceAttaquante.second->getPositionActuelle().x, pieceAttaquante.second->getPositionActuelle().y, true, estRoi, false, positionFinale);
-					if (estEchec) {
-
-						restaurerDeplacement(pieceAttaquee, pieceSelectionnee, positionPieceSelectionnee);
-						return true;
-					}
-				}
-			}
-
-			else if (pieceSelectionnee->getCouleur() == Couleur::noir) {
-
-				for (auto&& pieceAttaquante : listePieceBlanche) {
-
-					bool estEchec = miseEnEchec(pieceAttaquante.second->getPositionActuelle().x, pieceAttaquante.second->getPositionActuelle().y, false, estRoi, false, positionFinale);
-					if (estEchec) {
-
-						restaurerDeplacement(pieceAttaquee,pieceSelectionnee, positionPieceSelectionnee);
-						return true;
-
-					}
-				}
-			}
-
-			restaurerDeplacement(pieceAttaquee, pieceSelectionnee, positionPieceSelectionnee);
+		if (situationEchec(pieceSelectionnee,  positionFinale, listePieceAttaquante,  estRoi, estPieceAttaquanteNoir)) {
+			return true;
 		}
-	}
+	
 
 	return false;
+}
+
+
+bool PlateauEchec::situationEchec(shared_ptr<Piece> pieceSelectionnee, Position positionFinale, map<string, shared_ptr<Piece>>& listePieceAttaquante, bool estRoi, bool estPieceAttaquanteNoir) {
+	
+	Position positionPieceSelectionnee = pieceSelectionnee->positionActuelle;
+	shared_ptr<Piece> pieceAttaquee = tableauEchec[positionFinale.x][positionFinale.y];
+
+	if (mouvementValide(pieceSelectionnee, positionFinale)) {
+
+		//Déplace la pièce sélectionnée à l'endroit voulu afin de vérifié si son déplacement va causé un post échec
+		deplacementPiece(pieceSelectionnee, positionFinale, true);
+		pieceSelectionnee->positionActuelle = positionFinale;
+
+		for (auto&& pieceAttaquante : listePieceAttaquante) {
+
+			bool mouvementRoiPion = pieceAttaquante.second->estPion and estRoi;
+			bool estEchec = miseEnEchec(pieceAttaquante.second->getPositionActuelle().x, pieceAttaquante.second->getPositionActuelle().y, estPieceAttaquanteNoir, estRoi,positionFinale);
+
+			if (estEchec and (mouvementRoiPion or estRoi == false )) {
+				restaurerDeplacement(pieceAttaquee, pieceSelectionnee, positionPieceSelectionnee);
+				return true;
+			}
+			
+		
+		}
+
+
+		restaurerDeplacement(pieceAttaquee, pieceSelectionnee, positionPieceSelectionnee);
+	}
+	return false;
+
 }
 
 void PlateauEchec::restaurerDeplacement(shared_ptr<Piece> pieceAttaquee, shared_ptr<Piece> pieceSelectionnee, Position positionAvant ) {
@@ -507,7 +434,7 @@ void PlateauEchec::initialiserJeux() {
 	string nom = "Pion blanc ";
 
 	for (int i = 1; i <= 8; i++) {
-		nom += i;
+		nom += to_string(i);
 		tableauEchec[1][i] = make_shared<Pion>((Pion({ 1,i }, Couleur::blanc, nom)));
 		listePieceBlanche[nom] = tableauEchec[1][i];
 		nom = "Pion blanc ";
@@ -517,7 +444,7 @@ void PlateauEchec::initialiserJeux() {
 
 	nom = "Pion noir ";
 	for (int i = 1; i <= 8; i++) {
-		nom += i;
+		nom += to_string(i);
 		tableauEchec[6][i] = make_shared<Pion>((Pion({ 6,i }, Couleur::noir, nom)));
 		listePieceNoir[nom] = tableauEchec[6][i];
 		nom = "Pion noir ";
@@ -575,17 +502,4 @@ void PlateauEchec::resetGame() {
 	initialiserJeux();
 }
 
-void PlateauEchec::transfertListePieceEliminee(Position positionFinale) {
-	auto pieceBouffe = tableauEchec[0][0];
-	pieceBouffe->positionActuelle = positionFinale;
 
-}
-
-void PlateauEchec::transfertListeAttente(shared_ptr<Piece> piece) {
-
-	piece->positionActuelle.x = 0;
-	piece->positionActuelle.y = 0;
-
-	tableauEchec[0][0] = piece;
-
-}

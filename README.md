@@ -7,7 +7,7 @@ Still ongoing <br />
 * Castling move <br />
 * Pawn  (done) <br />
 * Checkmate / Stalemate <br />
-* Revive piece with pawn
+* Promotion
 
 Check out my project :  <br />
 (fresayu.com)

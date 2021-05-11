@@ -7,7 +7,7 @@ Still ongoing <br />
 * Castling move <br />
 * Pawn  (done) <br />
 * Checkmate / Stalemate <br />
-* Promotion
+* Promotion (done)
 
 Check out my project :  <br />
 (fresayu.com)

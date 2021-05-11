@@ -37,17 +37,21 @@ public:
 	string mouvementInterditMessage(shared_ptr<Piece> piece, Position positionApres);
 
 	const shared_ptr<Piece> getPiece(int x, int y);
-
+	bool promotion = false;
 	void liste1();
 	void liste2();
 	void resetGame();
 
+	void promotionPion(int x, int y, shared_ptr<Piece> pion);
+	void eliminationPieceModel(Position position);
+	pair<int, int> indexPremiereCaseVide(vector<vector<shared_ptr<Piece>>>  liste, int rangee, int colonne);
 
 private:
 
 	friend class Piece;
 	
 
+	
 
 	vector<vector<shared_ptr<Piece>>>      tableauEchec;
 	vector<vector<shared_ptr<Piece>>>      tableauNulle;
@@ -66,7 +70,6 @@ private:
 	void restaurerDeplacement(shared_ptr<Piece> pieceAttaquee, shared_ptr<Piece> pieceSelectionnee, Position positionFinale);
 	void eliminationPieceModele(shared_ptr<Piece> pieceDetruite);
 
-	pair<int, int> indexPremiereCaseVide(vector<vector<shared_ptr<Piece>>>  liste, int rangee, int colonne);
 
 
 

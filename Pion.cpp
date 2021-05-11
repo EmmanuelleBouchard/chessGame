@@ -25,21 +25,21 @@ bool Pion::validationMouvement(Position positionApres, vector<vector<shared_ptr<
 	bool positionXValide = 0;
 	int positionXSuivante = 0;
 	int positionXDeuxCase = 0;
-	bool promotion = 0;
+	bool estDerniereRangee = 0;
 
 	if (this->couleur_ == Couleur::blanc) {
 
 		deplacementDeuxCaseAvant = (positionActuelle.y == positionApres.y) and (positionActuelle.x + 2 == positionApres.x) and debut;
 		positionXValide = (positionActuelle.x + 1 == positionApres.x) or deplacementDeuxCaseAvant;
 		positionXSuivante = positionActuelle.x + 1;
-		promotion = positionApres.x == 8;
+		estDerniereRangee = positionApres.x == 7;
 		positionXDeuxCase = 3;
 	}
 	else if (this->couleur_ == Couleur::noir) {
 		deplacementDeuxCaseAvant = (positionActuelle.y == positionApres.y) and (positionActuelle.x - 2 == positionApres.x) and debut;
 		positionXValide = (positionActuelle.x - 1 == positionApres.x) or deplacementDeuxCaseAvant;
 		positionXSuivante = positionActuelle.x - 1;
-		promotion = positionApres.x == 0;
+		estDerniereRangee = positionApres.x == 0;
 		positionXDeuxCase = 4;
 	}
 
@@ -65,7 +65,7 @@ bool Pion::validationMouvement(Position positionApres, vector<vector<shared_ptr<
 				pieceGauche = tableauEchec[positionXSuivante][positionActuelle.y - 1];
 			}
 
-			if (promotion == false) {
+			if (estDerniereRangee == false) {
 				pieceMilieu = tableauEchec[positionXSuivante][positionActuelle.y];
 				pieceMilieuDeuxCase = tableauEchec[positionXDeuxCase][positionActuelle.y];
 			}
@@ -93,8 +93,8 @@ bool Pion::validationMouvement(Position positionApres, vector<vector<shared_ptr<
 					
 					return true;
 				}
-				else if (promotion) {
-
+				else if (estDerniereRangee) {
+					promotion = true;
 				//À modifier pour la derniere case (reviving)
 					return true;
 				}

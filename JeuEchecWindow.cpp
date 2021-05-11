@@ -23,6 +23,9 @@ JeuEchecWindow::JeuEchecWindow(QWidget* parent)
 
 	connect(ui->tableWidget, SIGNAL(cellClicked(int, int)), this, SLOT(deplacementPiece(int, int)));
 	connect(ui->resetButton, SIGNAL(clicked()), this, SLOT(remettreJeuxInitiale()));
+	connect(ui->listeNoire, SIGNAL(cellClicked(int, int)), this, SLOT(promotionNoir(int, int)));
+	connect(ui->listeBlanche, SIGNAL(cellClicked(int, int)), this, SLOT(promotionBlanc(int, int)));
+
 
 
 	initialisationFenetre();
@@ -30,8 +33,59 @@ JeuEchecWindow::JeuEchecWindow(QWidget* parent)
 
 }
 
+void JeuEchecWindow::promotionNoir(int x, int y) {
+
+	promotion(x, y,false);
+
+}
+void JeuEchecWindow::promotionBlanc(int x, int y) {
+
+	promotion(x, y,true);
+
+}
+
+void JeuEchecWindow::promotion(int x, int y, bool listeChoisiBlanche) {
+	if (plateau->promotion) {
+		auto pionModele = plateau->getPiece(positionPieceSelectionne.x, positionPieceSelectionne.y + 1);
+		auto imagePion = ui->tableWidget->item(positionPieceSelectionne.x, positionPieceSelectionne.y)->icon();
+		bool estPionNoir = pionModele->getCouleur() == Couleur::noir;
 
 
+		auto pieceVuePromotion = (estPionNoir) ? ui->listeNoire->item(x, y) : ui->listeBlanche->item(x, y);
+		bool caseVideListe = pieceVuePromotion->icon().isNull();
+
+		bool verificationListe = (estPionNoir == false and listeChoisiBlanche == true) or (estPionNoir == true and listeChoisiBlanche == false);
+		if (caseVideListe == false and verificationListe) {
+
+			plateau->promotionPion(x, y, pionModele);
+		
+			ui->tableWidget->item(positionPieceSelectionne.x, positionPieceSelectionne.y)->setIcon(pieceVuePromotion->icon());
+			auto indexPionDeplace = pionModele->getPositionActuelle();
+
+			if (estPionNoir == false) {
+
+
+				ui->listeBlanche->item(indexPionDeplace.x, indexPionDeplace.y)->setIcon(imagePion);
+				QString messageNoir = QString("Tour : <font color =#8696FF > Noir < / font>");
+				ui->tourRole->setText(messageNoir);
+		
+			}
+			else if(estPionNoir == true){
+				ui->listeNoire->item(indexPionDeplace.x, indexPionDeplace.y)->setIcon(imagePion);
+				QString messageBlanc = QString("Tour : <font color = #FF7676> Blanc < / font>");
+				ui->tourRole->setText(messageBlanc);
+
+			}
+
+			pieceVuePromotion->setIcon(QIcon());
+			plateau->promotion = false;
+
+		}
+	
+
+	}
+
+}
 
 void JeuEchecWindow::initialisationFenetre() {
 	ui->gridLayout->setAlignment(ui->tableWidget, Qt::AlignCenter);
@@ -61,7 +115,9 @@ void JeuEchecWindow::initialisationFenetre() {
 	ui->listeBlanche->setIconSize(QSize(25, 25));
 	ui->listeNoire->setIconSize(QSize(25, 25));
 
-	ui->tourRole->setText("Tour : BLANC");
+	QString message = QString("Tour : <font color = #FF7676 > Blanc < / font>");
+	
+	ui->tourRole->setText(message);
 	musiqueDeplacement->setMedia(QUrl("qrc:/Ressource/sound/351518__mh2o__chess-move-on-alabaster.wav"));
 	effetMusiqueDeplacement();
 
@@ -159,9 +215,7 @@ void JeuEchecWindow::coloriageCaseValide(Position positionPieceSelectionnee) {
 
 	for (int i = 0; i < range; i++) {
 		for (int j = 0; j < colonne; j++) {
-			if(i == 5 and j == 7){
-				cout << "a";
-			}
+
 			if ((i != positionPieceSelectionnee.x || positionPieceSelectionnee.y != j)) {
 				
 				auto piece = plateau->getPiece(positionPieceSelectionnee.x, positionPieceSelectionnee.y + 1);
@@ -292,44 +346,7 @@ void JeuEchecWindow::remettreJeuxInitiale() {
 }
 
 
-void JeuEchecWindow::eliminationPieceVue(const QIcon& icon, bool estImageNoir) {
-	int rangee= 8;
-	int colonne = 2;
 
-
-	bool listeBlancheVide = plateau->listeTeamBleu.empty();
-	bool listeNoireVide = plateau->listeTeamRouge.empty();
-
-	if ((listeBlancheVide == false && estImageNoir == false) || (listeNoireVide == false && estImageNoir == true)) {
-
-
-		for (int i = 0; i < rangee; i++) {
-			for (int j = 0; j < colonne; j++) {
-
-				
-				bool caseVideListeNoire = (ui->listeNoire->item(i, j))->icon().isNull();
-				bool caseVideListeBlanche = ui->listeBlanche->item(i, j)->icon().isNull();
-
-				if (estImageNoir && caseVideListeNoire) {
-
-	
-					ui->listeNoire->item(i, j)->setIcon(icon);
-
-					return;
-
-				}
-				else if (estImageNoir == false && caseVideListeBlanche) {
-
-			
-					ui->listeBlanche->item(i, j)->setIcon(icon);
-
-					return;
-
-				}
-			}
-		}
-	}
-}
 
 
 void JeuEchecWindow::messageMouvementInvalide(shared_ptr<Piece> pieceSelectionneModele, Position positionFinale,bool echec) {
@@ -345,7 +362,7 @@ void JeuEchecWindow::messageMouvementInvalide(shared_ptr<Piece> pieceSelectionne
 		messageLong += "Votre roi est en echec";
 	}
 
-	QMessageBox::warning(this, "Mouvement interdit", messageLong);
+	//QMessageBox::warning(this, "Mouvement interdit", messageLong);
 
 
 }
@@ -374,7 +391,7 @@ void JeuEchecWindow::mouvementValide(shared_ptr<Piece> pieceAttaquanteModel, Pos
 
 	if (caseDestinationVide == false) {
 
-		eliminationPiece(pieceAttaquanteModel);
+		eliminationPieceVue(pieceAttaquanteModel, pieceAttaquee);
 
 	}
 
@@ -390,89 +407,127 @@ void JeuEchecWindow::mouvementValide(shared_ptr<Piece> pieceAttaquanteModel, Pos
 
 }
 
-void JeuEchecWindow::eliminationPiece(shared_ptr<Piece> pieceAttaquee) {
+void JeuEchecWindow::eliminationPieceVue(shared_ptr<Piece> pieceAttaquante, shared_ptr<Piece> pieceAttaquee) {
 
 	
 	
 
-	int positionPieceX = pieceAttaquee->getPositionActuelle().x;
-	int positionPieceY = pieceAttaquee->getPositionActuelle().y-1;
+	int positionPieceX = pieceAttaquante->getPositionActuelle().x;
+	int positionPieceY = pieceAttaquante->getPositionActuelle().y-1;
 
-	bool estNoir = !(pieceAttaquee->getCouleur() == Couleur::noir);
+	bool estImageNoir = !(pieceAttaquante->getCouleur() == Couleur::noir);
 	auto imagePiece = ui->tableWidget->item(positionPieceX, positionPieceY)->icon();
 
 
-	eliminationPieceVue(imagePiece, estNoir);
+
+	bool listeBlancheVide = plateau->listeTeamBleu.empty();
+	bool listeNoireVide = plateau->listeTeamRouge.empty();
+
+	if ((listeBlancheVide == false && estImageNoir == false) || (listeNoireVide == false && estImageNoir == true)) {
+		auto indexPieceEliminee = pieceAttaquee->getPositionActuelle();
+		bool caseVideListeNoire = (ui->listeNoire->item(indexPieceEliminee.x, indexPieceEliminee.y))->icon().isNull();
+		bool caseVideListeBlanche = ui->listeBlanche->item(indexPieceEliminee.x, indexPieceEliminee.y)->icon().isNull();
+
+		if (estImageNoir && caseVideListeNoire) {
+
+
+			ui->listeNoire->item(indexPieceEliminee.x, indexPieceEliminee.y)->setIcon(imagePiece);
+
+			return;
+
+		}
+		else if (estImageNoir == false && caseVideListeBlanche) {
+
+
+			ui->listeBlanche->item(indexPieceEliminee.x, indexPieceEliminee.y)->setIcon(imagePiece);
+
+			return;
+
+		}
+
+
+	}
 
 
 }
 void JeuEchecWindow::deplacementPiece(int positionFinaleX, int positionFinaleY) {
+	if (plateau->promotion == false) {
+		//Premier clic : Selection piece
+		bool caseVide = ui->tableWidget->item(positionFinaleX, positionFinaleY)->icon().isNull();
+		if (premierClic && caseVide == false) {
 
-	//Premier clic : Selection piece
-	bool caseVide = ui->tableWidget->item(positionFinaleX, positionFinaleY)->icon().isNull();
-	if (premierClic && caseVide == false) {
+			auto couleur = plateau->getPiece(positionFinaleX, positionFinaleY + 1)->getCouleur();
 
-		auto couleur = plateau->getPiece(positionFinaleX, positionFinaleY + 1)->getCouleur();
+			if (tourBlanc && couleur == Couleur::blanc || !tourBlanc && couleur == Couleur::noir) {
+				positionPieceSelectionne.x = positionFinaleX;
+				positionPieceSelectionne.y = positionFinaleY;
+				premierClic = false;
+				coloriageCaseValide({ positionFinaleX,positionFinaleY });
+				
+			}
+			plateau->promotion = false;
 
-		if (tourBlanc && couleur == Couleur::blanc || !tourBlanc && couleur == Couleur::noir) {
-			positionPieceSelectionne.x = positionFinaleX;
-			positionPieceSelectionne.y = positionFinaleY;
-			premierClic = false;
-			coloriageCaseValide({ positionFinaleX,positionFinaleY });
 		}
 
+		//Deuxieme clic : Deplacement piece
 
-	}
+		else if (premierClic == false) {
 
-	//Deuxieme clic : Deplacement piece
+			remettreCouleurCaseAvant();
+			listeCaseColoriee.clear();
 
-	else if (premierClic == false) {
-		
-		remettreCouleurCaseAvant();
-		listeCaseColoriee.clear();
+			shared_ptr<Piece> pieceSelectionnee = plateau->getPiece((positionPieceSelectionne.x), positionPieceSelectionne.y + 1);
+			
 
-		shared_ptr<Piece> pieceSelectionnee = plateau->getPiece((positionPieceSelectionne.x), positionPieceSelectionne.y + 1);
-		if (pieceSelectionnee->getPositionActuelle().positionNumerotation() == "d8") {
-			cout << "a";
-		}
+			bool caseDifferente = (positionPieceSelectionne.x != positionFinaleX || positionPieceSelectionne.y != positionFinaleY);
+			bool deplacementValide = plateau->mouvementValide(pieceSelectionnee, { positionFinaleX,positionFinaleY + 1 });
+			bool echec = plateau->deplacementEchec(pieceSelectionnee, { positionFinaleX,positionFinaleY + 1 });
 
-		bool caseDifferente = (positionPieceSelectionne.x != positionFinaleX || positionPieceSelectionne.y != positionFinaleY);
-		bool deplacementValide = plateau->mouvementValide(pieceSelectionnee, { positionFinaleX,positionFinaleY + 1 });
-		bool echec = plateau->deplacementEchec(pieceSelectionnee, { positionFinaleX,positionFinaleY + 1 });
+			if (caseDifferente) {
 
-		if (caseDifferente){
+				if (deplacementValide && echec == false) {
 
-			if (deplacementValide && echec == false) {
+					mouvementValide(pieceSelectionnee, { positionFinaleX,positionFinaleY });
+					effetMusiqueDeplacement();
+					//Revive modele et vue
+					positionPieceSelectionne.x = positionFinaleX;
+					positionPieceSelectionne.y = positionFinaleY;
 
-				mouvementValide(pieceSelectionnee, { positionFinaleX,positionFinaleY });
-				effetMusiqueDeplacement();
+					tourBlanc = !tourBlanc;
+					QString messageNoir = QString("Tour : <font color =#8696FF > Noir < / font>");
+					QString messageBlanc = QString("Tour : <font color = #FF7676> Blanc < / font>");
+					
 
-				tourBlanc = !tourBlanc;
+					if (plateau->promotion) {
+						QString message = QString("Veuillez choisir une piece a echanger avant de continuer");
+						ui->tourRole->setText(message);
 
-				if (tourBlanc == false)
-					ui->tourRole->setText("Tour : NOIR");
-				else {
-					ui->tourRole->setText("Tour : BLANC");
+					}else{
+					if (tourBlanc == false)
+						ui->tourRole->setText(messageNoir);
+					else {
+						ui->tourRole->setText(messageBlanc);
+					}
 				}
 
+				}
+
+				else {
+
+					messageMouvementInvalide(pieceSelectionnee, { positionFinaleX,positionFinaleY }, echec);
+
+				}
 			}
 
-			else {
 
-					messageMouvementInvalide(pieceSelectionnee, { positionFinaleX,positionFinaleY },echec);	
-
-			}
-	}
+			premierClic = true;
 
 
-		premierClic = true;
+		}
 
 
 	}
-
-
 }
-
 JeuEchecWindow::~JeuEchecWindow()
 {
 

@@ -10,6 +10,35 @@
 #include "Pion.h"
 
 
+
+void PlateauEchec::promotionPion(int x, int y, shared_ptr<Piece> pion) {
+	
+	Position positionPion = pion->positionActuelle;
+
+	bool    estPionNoir = pion->couleur_ == Couleur::noir;
+
+	auto pieceRevive = (estPionNoir) ? listeTeamRouge[x][y] : listeTeamBleu[x][y];
+
+	eliminationPieceModel(pion->positionActuelle);
+
+	tableauEchec[positionPion.x][positionPion.y] = pieceRevive;
+
+	pieceRevive->positionActuelle = positionPion;
+
+	if (estPionNoir) {
+
+		listeTeamRouge[x][y] = nullptr;
+		listePieceNoir[pieceRevive->getNom()] = pieceRevive;
+
+	}
+	else if (estPionNoir == false) {
+
+		listeTeamBleu[x][y] = nullptr;
+		listePieceBlanche[pieceRevive->getNom()] = pieceRevive;
+
+	}
+
+}
 void  PlateauEchec::liste1() {
 
 	this->tableauEchec[0][3]->positionActuelle = { 2,3 };
@@ -20,6 +49,8 @@ void  PlateauEchec::liste1() {
 	//	this->listePieceBlanche[tableauEchec[1][3]->getNom()] = tableauEchec[1][3];
 
 }
+
+
 void  PlateauEchec::liste2() {
 	this->tableauEchec[7][7]->positionActuelle = { 5,7 };
 
@@ -114,54 +145,20 @@ pair<int, int> PlateauEchec::indexPremiereCaseVide(vector<vector<shared_ptr<Piec
 	}
 	return make_pair(-1, -1);
 }
-//A faire qqch
+
 bool PlateauEchec::deplacementPiece(shared_ptr<Piece>& piece, Position position, bool test) {
 
 	Position positionAncien = piece->positionActuelle;
 	auto autrePiece = tableauEchec[position.x][position.y];
 
-	if (auto && pion = dynamic_cast<Pion*>(piece.get()) and test == false) {
+	if (piece->estPion and test == false) {
 		piece->debut = false;
 	}
 
 	//Si on attaque, je met la pi;ece bouffé dans ma liste black list
 	if (tableauEchec[position.x][position.y] != nullptr and test == false) {
-
-		auto pieceAttaquee = tableauEchec[position.x][position.y];
-		bool estPieceBlanche = pieceAttaquee->getCouleur() == Couleur::blanc;
-
-		if (estPieceBlanche) {
-			listePieceBlanche.erase(pieceAttaquee->getNom());
-			bool continuer = true;
-			auto index = indexPremiereCaseVide(listeTeamBleu, 8, 2);
-			if (index.first != -1 or index.second != -1) {
-
-				listeTeamBleu[index.first][index.second] = pieceAttaquee;
-				pieceAttaquee->positionActuelle = { index.first,index.second };
-				continuer = false;
-
-			}
-
-
-			
-		}
-		else {
-			listePieceNoir.erase(pieceAttaquee->getNom());
-			bool continuer = true;
-
-
-			auto index = indexPremiereCaseVide(listeTeamRouge, 8, 2);
-			if (index.first != -1 or index.second != -1) {
-
-				listeTeamRouge[index.first][index.second] = pieceAttaquee;
-				pieceAttaquee->positionActuelle = { index.first,index.second };
-				continuer = false;
-
-			}
-
-		}
-
-		
+		eliminationPieceModel(position);
+	
 
 	}
 
@@ -170,7 +167,50 @@ bool PlateauEchec::deplacementPiece(shared_ptr<Piece>& piece, Position position,
 
 	piece->positionActuelle = position;
 
+	if (piece->estPion and piece->promotion) {
+		promotion = true;
+		piece->promotion = false;
+	}
 	return true;
+
+}
+
+void PlateauEchec::eliminationPieceModel(Position position) {
+
+	auto pieceAttaquee = tableauEchec[position.x][position.y];
+	bool estPieceBlanche = pieceAttaquee->getCouleur() == Couleur::blanc;
+
+	if (estPieceBlanche) {
+		listePieceBlanche.erase(pieceAttaquee->getNom());
+		bool continuer = true;
+		auto index = indexPremiereCaseVide(listeTeamBleu, 8, 2);
+		if (index.first != -1 or index.second != -1) {
+
+			listeTeamBleu[index.first][index.second] = pieceAttaquee;
+			pieceAttaquee->positionActuelle = { index.first,index.second };
+			continuer = false;
+
+		}
+
+
+
+	}
+	else {
+		listePieceNoir.erase(pieceAttaquee->getNom());
+		bool continuer = true;
+
+
+		auto index = indexPremiereCaseVide(listeTeamRouge, 8, 2);
+		if (index.first != -1 or index.second != -1) {
+
+			listeTeamRouge[index.first][index.second] = pieceAttaquee;
+			pieceAttaquee->positionActuelle = { index.first,index.second };
+			continuer = false;
+
+		}
+
+	}
+
 
 }
 

@@ -45,11 +45,13 @@ QT_END_NAMESPACE
 		void MakeActive();
 		void liste1();
 		void liste2();
+		void promotionNoir(int x, int y);
+		void promotionBlanc(int x, int y);
+		void promotion(int x, int y, bool listeBlanche);
 
 
 	private:
-		void eliminationPiece(shared_ptr<Piece>);
-		void eliminationPieceVue(const QIcon& icon, bool estNoir);
+		void eliminationPieceVue(shared_ptr<Piece> pieceAttaquante,shared_ptr<Piece> pieceAttaquee);
 		bool caseNoir(Position position);
 		void coloriageCaseValide(Position positionPieceSelectionne);
 		void remettreCouleurCaseAvant();
@@ -58,14 +60,15 @@ QT_END_NAMESPACE
 		void messageMouvementInvalide(shared_ptr<Piece> piece, Position position,bool echec);
 		
 		void effetMusiqueDeplacement();
-
-
+		string listeChoisi = "";
+			
 		Position positionPieceSelectionne;
 		bool premierClic = true;
 		bool tourBlanc = true;
 		shared_ptr<PlateauEchec> plateau = PlateauEchec::getInstancePlateau();
 		vector<Position> listeCaseColoriee;
 		QMediaPlayer* musiqueDeplacement = new QMediaPlayer();
+		shared_ptr<Piece> pieceSelectionne = nullptr;
 		
 		
 

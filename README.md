@@ -1,16 +1,6 @@
 # chessGame
 I'm using QT Design v 5.15 on Visual Studio 2019 <br />
 This is my first project <br />
-Still ongoing <br />
-
-## TODO 
-* Castling move <br />
-* Pawn  (done) <br />
-* Checkmate / Stalemate <br />
-* Promotion (done)
-
-Check out my project :  <br />
-(fresayu.com)
 
 ## Credits
 I do not own image nor sound effect <br />

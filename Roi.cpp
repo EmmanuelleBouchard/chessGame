@@ -63,7 +63,7 @@ bool Roi::Roi::validationMouvement(Position positionApres, vector<vector<shared_
 }
 
 Roi::Roi::Roi(Position position, Couleur couleur, string nom) : Piece(position, couleur, nom) {
-
+	estRoi = true;
 	
 
 }

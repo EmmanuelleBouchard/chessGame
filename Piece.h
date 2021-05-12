@@ -42,6 +42,8 @@
 
 		bool debut = true;
 		bool estPion = false;
+		bool estTour = false;
+		bool estRoi = false;
 		bool promotion = false;
 
 

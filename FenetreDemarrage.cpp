@@ -13,39 +13,31 @@ FenetreDemarrage::FenetreDemarrage(QWidget* parent)
 {
     ui_->setupUi(this);
     connect(ui_->start, SIGNAL(pressed()), this, SLOT(signalClicked()));
-    connect(ui_->liste1, SIGNAL(pressed()), this, SLOT(signalListe1()));
-    connect(ui_->liste2, SIGNAL(pressed()), this, SLOT(signalListe2()));
-    
 
-    
    
     
 }
 void FenetreDemarrage::signalClicked(){
-  //  this->hide();
+
     this->close();
     emit clicked();
 }
-void FenetreDemarrage::signalListe1() {
-    this->close();
 
-    emit liste1();
-
-}
-void FenetreDemarrage::signalListe2() {
-    this->close();
-    emit liste2();
-
-}
 
 FenetreDemarrage::~FenetreDemarrage()
 {
-
 
     delete ui_;
 
 }
 
+
+void FenetreDemarrage::MakeActive() {
+    raise();
+    this->show();
+    this->activateWindow();
+    this->raise();
+}
 
 
 

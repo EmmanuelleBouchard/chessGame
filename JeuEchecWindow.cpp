@@ -36,11 +36,15 @@ JeuEchecWindow::JeuEchecWindow(QWidget* parent)
 void JeuEchecWindow::promotionNoir(int x, int y) {
 
 	promotion(x, y,false);
+	verificationEchec();
 
 }
 void JeuEchecWindow::promotionBlanc(int x, int y) {
 
 	promotion(x, y,true);
+
+	bool estEchec = plateau->verificationEchecMatPat(tourBlanc);
+	verificationEchec();
 
 }
 
@@ -66,13 +70,13 @@ void JeuEchecWindow::promotion(int x, int y, bool listeChoisiBlanche) {
 
 
 				ui->listeBlanche->item(indexPionDeplace.x, indexPionDeplace.y)->setIcon(imagePion);
-				QString messageNoir = QString("Tour : <font color =#8696FF > Noir < / font>");
+				QString messageNoir = QString("Turn : <font color =#8696FF > Black < / font>");
 				ui->tourRole->setText(messageNoir);
 		
 			}
 			else if(estPionNoir == true){
 				ui->listeNoire->item(indexPionDeplace.x, indexPionDeplace.y)->setIcon(imagePion);
-				QString messageBlanc = QString("Tour : <font color = #FF7676> Blanc < / font>");
+				QString messageBlanc = QString("Turn : <font color = #FF7676> White < / font>");
 				ui->tourRole->setText(messageBlanc);
 
 			}
@@ -115,7 +119,7 @@ void JeuEchecWindow::initialisationFenetre() {
 	ui->listeBlanche->setIconSize(QSize(25, 25));
 	ui->listeNoire->setIconSize(QSize(25, 25));
 
-	QString message = QString("Tour : <font color = #FF7676 > Blanc < / font>");
+	QString message = QString("Turn : <font color = #FF7676 > White < / font>");
 	
 	ui->tourRole->setText(message);
 	musiqueDeplacement->setMedia(QUrl("qrc:/Ressource/sound/351518__mh2o__chess-move-on-alabaster.wav"));
@@ -144,24 +148,7 @@ void JeuEchecWindow::MakeActive() {
 	this->raise();
 }
 
-void  JeuEchecWindow::liste1() {
-	auto image = ui->tableWidget->item(0, 2)->icon();
-	ui->tableWidget->item(2, 2)->setIcon(image);
-	ui->tableWidget->item(0, 2)->setIcon(QIcon());
 
-	plateau->liste1();
-
-
-}
-void JeuEchecWindow::liste2() {
-
-	auto image = ui->tableWidget->item(7, 6)->icon();
-	ui->tableWidget->item(5, 6)->setIcon(image);
-	ui->tableWidget->item(7, 6)->setIcon(QIcon());
-
-	plateau->liste2();
-
-}
 //Augmenter la taille des images des pièces en fonction de la taille de la fenêtre
 void JeuEchecWindow::resizeEvent(QResizeEvent* event)
 {
@@ -219,11 +206,16 @@ void JeuEchecWindow::coloriageCaseValide(Position positionPieceSelectionnee) {
 			if ((i != positionPieceSelectionnee.x || positionPieceSelectionnee.y != j)) {
 				
 				auto piece = plateau->getPiece(positionPieceSelectionnee.x, positionPieceSelectionnee.y + 1);
+				if (piece->getNom() == "Roi blanc" and i == 0 and j == 2) {
+					cout << "a";
+				}
+				bool castle = plateau->castling(piece, { i,j + 1 }).first;
+				
+			//	if(plateau->mouvementValide(piece, { i,j + 1 }))
 
-				if(plateau->mouvementValide(piece, { i,j + 1 }))
 
-				if (plateau->mouvementValide(piece, { i,j + 1 }) and plateau->deplacementEchec(piece, { i,j + 1 }) == false) {
-					
+				if ((plateau->mouvementValide(piece, { i,j + 1 }) or castle)and plateau->deplacementEchec(piece, { i,j + 1 }) == false) {
+			
 					listeCaseColoriee.push_back({ i,j });
 
 					QLinearGradient linearGrad(QPointF(0, 0), QPointF(50, 50));
@@ -315,7 +307,8 @@ void JeuEchecWindow::remettreJeuxInitiale() {
 	plateau->resetGame();
 	tourBlanc = true;
 	premierClic = true;
-	ui->tourRole->setText("Tour : BLANC");
+	QString message = QString("Turn : <font color = #FF7676 > White < / font>");
+	ui->tourRole->setText(message);
 
 	ui->tableWidget->item(0, 0)->setIcon(QIcon(":/Ressource/image/rook1.png"));
 	ui->tableWidget->item(0, 1)->setIcon(QIcon(":/Ressource/image/cavalierBlanc.png"));
@@ -341,31 +334,19 @@ void JeuEchecWindow::remettreJeuxInitiale() {
 		ui->tableWidget->item(6, i)->setIcon(QIcon(":/Ressource/image/pawn.png"));
 	}
 
-
+	if (plateau->estEchecMat or plateau->estEchecPat) {
+		plateau->estEchecMat = false;
+		plateau->estEchecPat = false;
+		emit echec();
+		ui->resetButton->setText(QString("Reset"));
+		this->close();
+	}
 
 }
 
 
 
 
-
-void JeuEchecWindow::messageMouvementInvalide(shared_ptr<Piece> pieceSelectionneModele, Position positionFinale,bool echec) {
-
-	QString message = QString::fromStdString(plateau->mouvementInterditMessage(pieceSelectionneModele, { positionFinale.x,positionFinale.y + 1 }));
-	QString messageLong = "<FONT COLOR='#ffffff'>" + message + "." + "\n" + "</FONT>";
-
-	if ((pieceSelectionneModele->pareilCouleur(plateau->getPiece(positionFinale.x, positionFinale.y + 1)))) {
-
-		messageLong += "<FONT COLOR='#ffffff'>  : Vous ne pouvez pas bouffer vos propres pieces! </FONT> ";
-	}
-	if (echec) {
-		messageLong += "Votre roi est en echec";
-	}
-
-	//QMessageBox::warning(this, "Mouvement interdit", messageLong);
-
-
-}
 
 
 void JeuEchecWindow::effetMusiqueDeplacement(){
@@ -379,7 +360,7 @@ void JeuEchecWindow::effetMusiqueDeplacement(){
 }
 
 
-void JeuEchecWindow::mouvementValide(shared_ptr<Piece> pieceAttaquanteModel, Position positionFinale) {
+void JeuEchecWindow::mouvementValide(shared_ptr<Piece> pieceAttaquanteModel, Position positionFinale, bool castling, shared_ptr<Piece> tour) {
 
 	shared_ptr<Piece> pieceAttaquee = plateau->getPiece(positionFinale.x, positionFinale.y + 1);
 
@@ -395,9 +376,33 @@ void JeuEchecWindow::mouvementValide(shared_ptr<Piece> pieceAttaquanteModel, Pos
 
 	}
 
+	int indexXTour = 0;
+	int indexYTour = 0;
+	if (castling) {
+		if (tour->getPositionActuelle().y < positionFinale.y) {
+			 indexYTour = 3;
+		}
+		else {
+			indexYTour = 5;
+		}
+		if (tour->getCouleur() == Couleur::noir) {
+			indexXTour = 7;
+		}
+		else {
+			indexXTour = 0;
+		}
+		auto tourVue = ui->tableWidget->item(tour->getPositionActuelle().x, tour->getPositionActuelle().y-1);
+		plateau->deplacementPiece(tour, { indexXTour, indexYTour + 1 }, false);
+		
+		ui->tableWidget->item(indexXTour, indexYTour)->setIcon(tourVue->icon());
+		tourVue->setIcon(QIcon());
 
 
+		
+
+	}
 	
+
 	auto pieceAttaquanteVue = ui->tableWidget->item(positionPieceSelectionne.x, positionPieceSelectionne.y);
 
 	ui->tableWidget->item(positionFinale.x, positionFinale.y)->setIcon(pieceAttaquanteVue->icon());
@@ -477,29 +482,31 @@ void JeuEchecWindow::deplacementPiece(int positionFinaleX, int positionFinaleY) 
 			listeCaseColoriee.clear();
 
 			shared_ptr<Piece> pieceSelectionnee = plateau->getPiece((positionPieceSelectionne.x), positionPieceSelectionne.y + 1);
-			
 
 			bool caseDifferente = (positionPieceSelectionne.x != positionFinaleX || positionPieceSelectionne.y != positionFinaleY);
 			bool deplacementValide = plateau->mouvementValide(pieceSelectionnee, { positionFinaleX,positionFinaleY + 1 });
 			bool echec = plateau->deplacementEchec(pieceSelectionnee, { positionFinaleX,positionFinaleY + 1 });
-
+			auto castle = plateau->castling(pieceSelectionnee, { positionFinaleX,positionFinaleY + 1 });
+			bool estCastle = castle.first;
 			if (caseDifferente) {
 
-				if (deplacementValide && echec == false) {
+				if ((deplacementValide or estCastle) && echec == false) {
 
-					mouvementValide(pieceSelectionnee, { positionFinaleX,positionFinaleY });
+				
+					
+					mouvementValide(pieceSelectionnee, { positionFinaleX,positionFinaleY }, estCastle, castle.second );
 					effetMusiqueDeplacement();
-					//Revive modele et vue
+			
 					positionPieceSelectionne.x = positionFinaleX;
 					positionPieceSelectionne.y = positionFinaleY;
 
 					tourBlanc = !tourBlanc;
-					QString messageNoir = QString("Tour : <font color =#8696FF > Noir < / font>");
-					QString messageBlanc = QString("Tour : <font color = #FF7676> Blanc < / font>");
+					QString messageNoir = QString("Turn : <font color =#8696FF > Black < / font>");
+					QString messageBlanc = QString("Turn : <font color = #FF7676> White < / font>");
 					
 
 					if (plateau->promotion) {
-						QString message = QString("Veuillez choisir une piece a echanger avant de continuer");
+						QString message = QString("Choose another piece before continuing");
 						ui->tourRole->setText(message);
 
 					}else{
@@ -510,13 +517,11 @@ void JeuEchecWindow::deplacementPiece(int positionFinaleX, int positionFinaleY) 
 					}
 				}
 
-				}
-
-				else {
-
-					messageMouvementInvalide(pieceSelectionnee, { positionFinaleX,positionFinaleY }, echec);
+				
+					verificationEchec();
 
 				}
+
 			}
 
 
@@ -527,6 +532,24 @@ void JeuEchecWindow::deplacementPiece(int positionFinaleX, int positionFinaleY) 
 
 
 	}
+}
+
+
+void JeuEchecWindow::verificationEchec() {
+
+	bool estEchec = plateau->verificationEchecMatPat(tourBlanc);
+	if (estEchec) {
+		if (plateau->estEchecMat) {
+			QString messageFin = (tourBlanc) ? QString("Black won") : QString("White won");
+			ui->tourRole->setText(messageFin);
+		}
+		else {
+			QString messagePat = QString("Draw");
+			ui->tourRole->setText(messagePat);
+		}
+		ui->resetButton->setText(QString("Back to main menu"));
+	}
+
 }
 JeuEchecWindow::~JeuEchecWindow()
 {

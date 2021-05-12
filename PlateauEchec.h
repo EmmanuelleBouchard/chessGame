@@ -31,25 +31,25 @@ public:
 	bool getCase(Position position);
 
 	bool mouvementValide(const shared_ptr<Piece>& piece, Position position);
-
 	bool deplacementEchec(shared_ptr<Piece> pieceSelectionneModele, Position positionFinale);
-
-	string mouvementInterditMessage(shared_ptr<Piece> piece, Position positionApres);
-
 	const shared_ptr<Piece> getPiece(int x, int y);
-	bool promotion = false;
-	void liste1();
-	void liste2();
-	void resetGame();
 
+
+	void resetGame();
+	bool verificationEchecMatPat(bool roiBlanc);
 	void promotionPion(int x, int y, shared_ptr<Piece> pion);
-	void eliminationPieceModel(Position position);
+
 	pair<int, int> indexPremiereCaseVide(vector<vector<shared_ptr<Piece>>>  liste, int rangee, int colonne);
+	pair<bool, shared_ptr<Piece>> castling(const shared_ptr<Piece>& piece, Position position);
+
+	bool estEchecMat = false;
+	bool estEchecPat = false;
+	bool deplacementCastling = false;
+	bool promotion = false;
 
 private:
 
 	friend class Piece;
-	
 
 	
 
@@ -59,7 +59,7 @@ private:
 	inline static unique_ptr<PlateauEchec> plateau = nullptr;
 
 	PlateauEchec();
-
+	bool roiEchec(bool roiBlanc);
 	bool debordementCase(Position position);
 	bool situationEchec(shared_ptr<Piece> pieceSelectionnee, Position positionFinale, map<string, shared_ptr<Piece>>& listePieceAttaquante, bool estRoi, bool estPieceAttaquanteNoir);
 	bool miseEnEchec(int x, int y, bool estNoir, bool changerPosition, Position positionRoi);
@@ -68,7 +68,7 @@ private:
 	void initialiserJeux();
 	void initialisationPosition(Position position, shared_ptr<Piece> piece);
 	void restaurerDeplacement(shared_ptr<Piece> pieceAttaquee, shared_ptr<Piece> pieceSelectionnee, Position positionFinale);
-	void eliminationPieceModele(shared_ptr<Piece> pieceDetruite);
+	void eliminationPieceModel(Position position);
 
 
 

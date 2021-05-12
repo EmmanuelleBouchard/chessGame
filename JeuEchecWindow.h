@@ -36,19 +36,19 @@ QT_END_NAMESPACE
 	
 		Ui::JeuEchecWindow* ui;
 
-
+	
 	public slots:
 
 		void deplacementPiece(int x, int y);
 		void resizeEvent(QResizeEvent*);
 		void remettreJeuxInitiale();
 		void MakeActive();
-		void liste1();
-		void liste2();
+
 		void promotionNoir(int x, int y);
 		void promotionBlanc(int x, int y);
 		void promotion(int x, int y, bool listeBlanche);
-
+	signals:
+		void echec();
 
 	private:
 		void eliminationPieceVue(shared_ptr<Piece> pieceAttaquante,shared_ptr<Piece> pieceAttaquee);
@@ -56,8 +56,9 @@ QT_END_NAMESPACE
 		void coloriageCaseValide(Position positionPieceSelectionne);
 		void remettreCouleurCaseAvant();
 		void initialisationFenetre();
-		void mouvementValide(shared_ptr<Piece> piece, Position position);
-		void messageMouvementInvalide(shared_ptr<Piece> piece, Position position,bool echec);
+		void mouvementValide(shared_ptr<Piece> piece, Position position, bool castling, shared_ptr<Piece> tour);
+
+		void verificationEchec();
 		
 		void effetMusiqueDeplacement();
 		string listeChoisi = "";

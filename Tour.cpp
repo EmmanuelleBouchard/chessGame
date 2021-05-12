@@ -64,7 +64,7 @@ std::shared_ptr<Piece> Tour::getInstanceTourDroite(Couleur couleur) {
 
 
 Tour::Tour(Position position, Couleur couleur, string nom) : Piece(position, couleur, nom) {
-
+	estTour = true;
 
 }
 

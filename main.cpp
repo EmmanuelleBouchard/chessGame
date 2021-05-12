@@ -28,11 +28,8 @@ int main(int argc, char *argv[])
 	
 
 	QObject::connect(w.get(), &FenetreDemarrage::clicked, p.get(), &JeuEchecWindow::MakeActive);
-	QObject::connect(w.get(), &FenetreDemarrage::liste1, p.get(), &JeuEchecWindow::liste1);
-	QObject::connect(w.get(), &FenetreDemarrage::liste2, p.get(), &JeuEchecWindow::liste2);
 
-	QObject::connect(w.get(), &FenetreDemarrage::liste1, p.get(), &JeuEchecWindow::MakeActive);
-	QObject::connect(w.get(), &FenetreDemarrage::liste2, p.get(), &JeuEchecWindow::MakeActive);
+	QObject::connect(p.get(), &JeuEchecWindow::echec, w.get(), &FenetreDemarrage::MakeActive);
 
 	w->show();
 

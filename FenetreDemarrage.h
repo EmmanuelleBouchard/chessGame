@@ -18,15 +18,13 @@ public:
 
 signals: 
     void clicked();
-    void liste1();
-    void liste2();
+
 
 
 
 public slots:
     void signalClicked();
-    void signalListe1();
-    void signalListe2();
+    void MakeActive();
 
 
   
